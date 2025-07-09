@@ -12,4 +12,7 @@ export default defineConfig({
 			filename: 'stats.html',
 		}),
 	],
+	build: {
+		sourcemap: true,
+	},
 });
