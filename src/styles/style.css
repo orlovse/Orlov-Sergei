@@ -38,6 +38,10 @@ body {
   background-color: transparent;
 }
 
+html, body {
+  overscroll-behavior-y: none;
+}
+
 #app {
   position: fixed;
   top: 0;
@@ -87,7 +91,7 @@ h1 {
 .app__detail-block {
   opacity: 0;
   transform: translateY(30px);
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .app__detail-block h3 {
@@ -144,9 +148,17 @@ h1 {
           inset -6px -6px 10px var(--g-shadow-light);
 }
 
+.is-macos .app__info{
+  top: 5rem;
+}
+
 @media (max-width: 700px) {
+  .is-macos .app__info{
+    top: 3rem;
+  }
+
   h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
 
   .app__info {
@@ -154,11 +166,11 @@ h1 {
   }
 
   .app__detail-block {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   .app__detail-block h3 {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .app__detail-block p {
