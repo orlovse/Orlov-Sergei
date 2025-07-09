@@ -1,92 +1,296 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import fragment from '../shaders/fragment.glsl';
 import vertex from '../shaders/vertex.glsl';
+import simFragment from '../shaders/fbo/simFragment.glsl';
+import simVertex from '../shaders/fbo/simVertex.glsl';
+import GUI from 'lil-gui';
 
-const device = {
-	width: window.innerWidth,
-	height: window.innerHeight,
-	pixelRatio: window.devicePixelRatio,
+
+const THEME = {
+	light: {
+		background: new THREE.Color(0xffffff),
+		particles: new THREE.Color(0xFFA500),
+	},
+	dark: {
+		background: new THREE.Color(0x000000),
+		particles: new THREE.Color(0x8A2BE2),
+	},
 };
 
 export default class Sketch {
-	constructor(canvas) {
-		this.canvas = canvas;
-
+	constructor(options) {
 		this.scene = new THREE.Scene();
+
+		this.time = 0;
+		this.container = options.parentElement;
+		this.width = this.container.offsetWidth;
+		this.height = this.container.offsetHeight;
 
 		this.camera = new THREE.PerspectiveCamera(
 		70,
-		device.width / device.height,
-		0.1,
-		100,
+		this.width / this.height,
+		0.01,
+		1000,
 		);
-		this.camera.position.set(0, 0, 2);
-		this.scene.add(this.camera);
 
-		this.renderer = new THREE.WebGLRenderer({
-			canvas: this.canvas,
-			alpha: true,
-			antialias: true,
-			preserveDrawingBuffer: true,
-		});
-		this.renderer.setSize(device.width, device.height);
-		this.renderer.setPixelRatio(Math.min(device.pixelRatio, 2));
+		this.renderer = new THREE.WebGLRenderer({ antialias: true });
+		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+		this.renderer.setSize(this.width, this.height);
+		this.renderer.setClearColor(0x000000, 1);
+		this.container.appendChild(this.renderer.domElement);
 
-		this.controls = new OrbitControls(this.camera, this.canvas);
+		this.raycaster = new THREE.Raycaster();
+		this.pointer = new THREE.Vector2();
 
-		this.clock = new THREE.Clock();
+		this.camera.position.set(0, 0, 3);
+		// this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+		this.time = 0;
 
-		this.setLights();
-		this.setGeometry();
+		const THREE_PATH = `https://unpkg.com/three@0.${THREE.REVISION}`;
+		this.dracoLoader = new DRACOLoader(new THREE.LoadingManager()).setDecoderPath(`${THREE_PATH}/examples/jsm/libs/draco/gltf/`);
+		this.gltfLoader = new GLTFLoader();
+		this.gltfLoader.setDRACOLoader(this.dracoLoader);
+
+		this.isPlaying = true;
+
+		this.setupEvents();
+		this.setupFBO();
+		this.addObjects();
+		this.setupResize();
 		this.render();
-		this.setResize();
+		this.resize();
+		// this.setupSettings();
+		this.setupThemeColors();
 	}
 
-	setLights() {
-		this.ambientLight = new THREE.AmbientLight(new THREE.Color(1, 1, 1, 1));
-		this.scene.add(this.ambientLight);
+	setupEvents() {
+		this.dummy = new THREE.Mesh(
+			new THREE.PlaneGeometry(100, 100),
+			new THREE.MeshBasicMaterial(),
+		);
+		document.addEventListener('mousemove', (e) => {
+			this.pointer.x = (e.clientX / this.width) * 2 - 1;
+			this.pointer.y = -(e.clientY / this.height) * 2 + 1;
+
+			this.raycaster.setFromCamera(this.pointer, this.camera);
+
+			const intersects = this.raycaster.intersectObject(this.dummy);
+
+			if (intersects.length > 0) {
+				let { x, y } = intersects[0].point;
+				this.fboMaterial.uniforms.uMouse.value = new THREE.Vector2(x, y);
+			}
+		});
 	}
 
-	setGeometry() {
-		this.planeGeometry = new THREE.PlaneGeometry(1, 1, 128, 128);
-		this.planeMaterial = new THREE.ShaderMaterial({
-			side: THREE.DoubleSide,
-			wireframe: true,
-			fragmentShader: fragment,
-			vertexShader: vertex,
+	setupSettings() {
+		this.settings = {
+			progress: 0,
+		};
+		this.gui = new GUI();
+		this.gui.add(this.settings, 'progress', 0, 1, 0.01).onChange(() => {});
+	}
+
+	setupResize() {
+		window.addEventListener('resize', this.resize.bind(this));
+	}
+
+	getRenderTarget() {
+		return new THREE.WebGLRenderTarget(this.width, this.height, {
+			minFilter: THREE.NearestFilter,
+			magFilter: THREE.NearestFilter,
+			format: THREE.RGBAFormat,
+			type: THREE.FloatType,
+		});
+	}
+
+	setupFBO() {
+		this.size = 256;
+		this.fbo = this.getRenderTarget();
+		this.fbo1 = this.getRenderTarget();
+
+		this.fboScene = new THREE.Scene();
+		this.fboCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+		this.fboCamera.position.set(0, 0, 0.5);
+		this.fboCamera.lookAt(0, 0, 0);
+		const geometry = new THREE.PlaneGeometry(2, 2);
+
+		this.data = new Float32Array(this.size * this.size * 4);
+
+		for (let i = 0; i < this.size; i++) {
+			for (let j = 0; j < this.size; j++) {
+				const index = (i + j * this.size) * 4;
+				const theta = Math.random() * Math.PI * 2;
+				const r = 0.5 + Math.random() * 0.5;
+				this.data[index] = Math.cos(theta) * r;
+				this.data[index + 1] = Math.sin(theta) * r;
+				this.data[index + 2] = 1;
+				this.data[index + 3] = 1;
+			}
+		}
+
+		this.fboTexture = new THREE.DataTexture(
+			this.data,
+			this.size,
+			this.size,
+			THREE.RGBAFormat,
+			THREE.FloatType,
+		);
+		this.fboTexture.minFilter = THREE.NearestFilter;
+		this.fboTexture.magFilter = THREE.NearestFilter;
+		this.fboTexture.needsUpdate = true;
+
+		this.fboMaterial = new THREE.ShaderMaterial({
+			fragmentShader: simFragment,
+			vertexShader: simVertex,
 			uniforms: {
-				progress: { type: 'f', value: 0 },
+				uPositions: {
+					value: this.fboTexture,
+				},
+				time: {
+					value: 0,
+				},
+				uInfo: {
+					value: null,
+				},
+				uMouse: {
+					value: new THREE.Vector2(0, 0),
+				},
 			},
 		});
 
-		this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
-		this.scene.add(this.planeMesh);
+		this.infoArray = new Float32Array(this.size * this.size * 4);
+
+		for (let i = 0; i < this.size; i++) {
+			for (let j = 0; j < this.size; j++) {
+				const index = (i + j * this.size) * 4;
+				this.infoArray[index] = 0.5 + Math.random();
+				this.infoArray[index + 1] = 0.5 + Math.random();
+				this.infoArray[index + 2] = 1;
+				this.infoArray[index + 3] = 1;
+			}
+		}
+
+		this.info = new THREE.DataTexture(
+			this.infoArray,
+			this.size,
+			this.size,
+			THREE.RGBAFormat,
+			THREE.FloatType,
+		);
+		this.info.minFilter = THREE.NearestFilter;
+		this.info.magFilter = THREE.NearestFilter;
+		this.info.needsUpdate = true;
+
+		this.fboMaterial.uniforms.uInfo.value = this.info;
+
+		this.fboMesh = new THREE.Mesh(geometry, this.fboMaterial);
+		this.fboScene.add(this.fboMesh);
+
+		this.renderer.setRenderTarget(this.fbo);
+		this.renderer.render(this.fboScene, this.fboCamera);
+
+		this.renderer.setRenderTarget(this.fbo1);
+		this.renderer.render(this.fboScene, this.fboCamera);
+	}
+
+	resize() {
+		this.width = this.container.offsetWidth;
+		this.height = this.container.offsetHeight;
+		this.renderer.setSize(this.width, this.height);
+		this.camera.aspect = this.width / this.height;
+		this.camera.updateProjectionMatrix();
+	}
+
+	addObjects() {
+		this.material = new THREE.ShaderMaterial({
+			extensions: {
+				derivatives: '#extension GL_OES_standard_derivatives : enable',
+			},
+			fragmentShader: fragment,
+			vertexShader: vertex,
+			side: THREE.DoubleSide,
+			// wireframe: false,
+			uniforms: {
+				time: {
+					value: 0,
+				},
+				resolution: {
+					value: new THREE.Vector4(),
+				},
+				uPositions: {
+					value: null,
+				},
+				uColor: {
+					value: THEME.light.particles,
+				},
+			},
+		});
+
+		this.count = this.size ** 2;
+
+		const geometry = new THREE.BufferGeometry();
+		const positions = new Float32Array(this.count * 3);
+		const uv = new Float32Array(this.count * 2);
+
+		for (let i = 0; i < this.size; i++) {
+			for (let j = 0; j < this.size; j++) {
+				const index = i + j * this.size;
+				positions[index * 3] = Math.random();
+				positions[index * 3 + 1] = Math.random();
+				positions[index * 3 + 2] = 0;
+				uv[index * 2] = i / this.size;
+				uv[index * 2 + 1] = j / this.size;
+			}
+		}
+
+		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+		geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+
+		this.material.uniforms.uPositions.value = this.fboTexture;
+		this.points = new THREE.Points(geometry, this.material);
+		this.scene.add(this.points);
+	}
+
+	setupThemeColors() {
+		const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+
+		const applyTheme = (isDark) => {
+			const currentTheme = isDark ? THEME.dark : THEME.light;
+
+			this.renderer.setClearColor(currentTheme.background);
+
+			if (this.material) {
+				this.material.uniforms.uColor.value = currentTheme.particles;
+			}
+		};
+
+		darkThemeMq.addEventListener('change', (e) => {
+			applyTheme(e.matches);
+		});
+
+		applyTheme(darkThemeMq.matches);
 	}
 
 	render() {
-		const elapsedTime = this.clock.getElapsedTime();
+		if (!this.isPlaying) return;
+		this.time += 0.05;
+		this.material.uniforms.time.value = this.time;
+		this.fboMaterial.uniforms.time.value = this.time;
+		window.requestAnimationFrame(this.render.bind(this));
 
-		this.planeMesh.rotation.x = 0.2 * elapsedTime;
-		this.planeMesh.rotation.y = 0.1 * elapsedTime;
+		this.fboMaterial.uniforms.uPositions.value = this.fbo1.texture;
+		this.material.uniforms.uPositions.value = this.fbo.texture;
 
+		this.renderer.setRenderTarget(this.fbo);
+		this.renderer.render(this.fboScene, this.fboCamera);
+		this.renderer.setRenderTarget(null);
 		this.renderer.render(this.scene, this.camera);
-		requestAnimationFrame(this.render.bind(this));
-	}
 
-	setResize() {
-		window.addEventListener('resize', this.onResize.bind(this));
-	}
-
-	onResize() {
-		device.width = window.innerWidth;
-		device.height = window.innerHeight;
-
-		this.camera.aspect = device.width / device.height;
-		this.camera.updateProjectionMatrix();
-
-		this.renderer.setSize(device.width, device.height);
-		this.renderer.setPixelRatio(Math.min(device.pixelRatio, 2));
+		const temp = this.fbo;
+		this.fbo = this.fbo1;
+		this.fbo1 = temp;
 	}
 }
