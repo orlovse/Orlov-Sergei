@@ -4,6 +4,7 @@
 
   --color-text: #E2E8F0;
   --color-accent: #ffb361;
+  --color-accent-opposite: #457dcb;
   --background-image: linear-gradient(to right, #243949 0%, #517fa4 100%);
 
   font-synthesis: none;
@@ -16,6 +17,7 @@
   :root {
     --color-text: #2D3748;
     --color-accent: #457dcb;
+    --color-accent-opposite: #ffb361;
     --background-image: linear-gradient(-225deg, #FFFEFF 0%, #D7FFFE 100%);
   }
 }
@@ -96,10 +98,6 @@ h1 {
   font-weight: 700;
 }
 
-.app__detail-block p {
-  line-height: 1.6;
-}
-
 .scroll-spacer {
   height: 200vh;
 }
@@ -126,6 +124,33 @@ h1 {
   width: 100%;
 }
 
+.highlight-word {
+  position: relative;
+  display: inline-block;
+  color: inherit;
+  transition: ease-in-out 0.5s;
+}
+
+.highlight-word::first-letter {
+  background-color: var(--color-accent-opposite);
+}
+
+.highlight-word::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  background-color: var(--color-accent-opposite);
+  transition: width 0.3s ease;
+  z-index: -1;
+}
+
+.highlight-word:hover::before {
+  width: 100%;
+}
+
 @media (max-width: 700px) {
   h1 {
     font-size: 2.5rem;
@@ -145,6 +170,5 @@ h1 {
 
   .app__detail-block p {
     font-size: 0.9rem;
-    line-height: 1.2;
   }
 }
