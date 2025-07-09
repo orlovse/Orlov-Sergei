@@ -3,7 +3,7 @@
   --font-body: 'Inter', sans-serif;
 
   --color-text: #E2E8F0;
-  --color-accent: #67E8F9;
+  --color-accent: #ffb361;
   --background-image: linear-gradient(to right, #243949 0%, #517fa4 100%);
 
   font-synthesis: none;
@@ -15,7 +15,7 @@
 @media (prefers-color-scheme: light) {
   :root {
     --color-text: #2D3748;
-    --color-accent: #2563EB;
+    --color-accent: #457dcb;
     --background-image: linear-gradient(-225deg, #FFFEFF 0%, #D7FFFE 100%);
   }
 }
@@ -52,11 +52,6 @@ h1 {
   color: var(--color-text);
 }
 
-.subtitle, .info {
-  font-family: var(--font-body);
-  color: var(--color-text);
-}
-
 .main-section {
   min-height: 100vh;
   width: 100%;
@@ -70,6 +65,7 @@ h1 {
 .hero {
   width: 100%;
   text-align: center;
+  z-index: 10;
 }
 
 .info {
@@ -108,4 +104,26 @@ h1 {
 
 .scroll-spacer {
   height: 200vh;
+}
+
+.decorated-text {
+  text-decoration: none;
+  position: relative;
+}
+
+.decorated-text::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-accent);
+  transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.decorated-text:hover::before {
+  left: 0;
+  right: auto;
+  width: 100%;
 }
