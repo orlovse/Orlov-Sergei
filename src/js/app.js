@@ -280,7 +280,7 @@ export default class Sketch {
 	setupScrollAnimation() {
 		const tl = gsap.timeline({
 			scrollTrigger: {
-				trigger: '.scroll-container',
+				trigger: '.app__main',
 				start: 'top top',
 				end: '+=200%',
 				scrub: 1.2,
@@ -289,17 +289,17 @@ export default class Sketch {
 
 		tl.to(this.material.uniforms.uScale, { value: 1.2 }, 0);
 
-		tl.to('.hero', {
-			y: '-35vh',
+		tl.to('.app__header', {
+			y: '-40vh',
 			ease: 'power1.inOut',
 		}, 0);
 
-		tl.to('.info', {
+		tl.to('.app__info', {
 			y: '10vh',
 			ease: 'power1.inOut',
 		}, 0.1);
 
-		tl.to('.detail-block', {
+		tl.to('.app__detail-block', {
 			opacity: 1,
 			y: 0,
 			stagger: 0.2,
