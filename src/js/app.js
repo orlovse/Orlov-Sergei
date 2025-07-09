@@ -291,6 +291,11 @@ export default class Sketch {
 			},
 		});
 
+		gsap.set('.app__info', {
+			xPercent: -50,
+			yPercent: -50,
+		});
+
 		tl.to(this.material.uniforms.uScale, { value: 1.2 }, 0);
 
 		tl.to('.app__header', {

@@ -148,9 +148,6 @@ h1 {
           inset -6px -6px 10px var(--g-shadow-light);
 }
 
-.is-macos .app__info{
-  top: 5rem;
-}
 
 @media (max-width: 700px) {
   .is-macos .app__info{
