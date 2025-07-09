@@ -81,8 +81,12 @@ export default class Sketch {
 			const intersects = this.raycaster.intersectObject(this.dummy);
 
 			if (intersects.length > 0) {
-				let { x, y } = intersects[0].point;
-				this.fboMaterial.uniforms.uMouse.value = new THREE.Vector2(x, y);
+				const pt = intersects[0].point;
+				const scale = this.material.uniforms.uScale.value;
+				this.fboMaterial.uniforms.uMouse.value.set(
+					pt.x / scale,
+					pt.y / scale,
+				);
 			}
 		});
 	}
