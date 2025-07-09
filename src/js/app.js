@@ -1,4 +1,4 @@
-import * as T from 'three';
+import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import fragment from '../shaders/fragment.glsl';
@@ -10,14 +10,14 @@ const device = {
 	pixelRatio: window.devicePixelRatio,
 };
 
-export default class Three {
+export default class Sketch {
 	constructor(canvas) {
 		this.canvas = canvas;
 
-		this.scene = new T.Scene();
+		this.scene = new THREE.Scene();
 
-		this.camera = new T.PerspectiveCamera(
-		75,
+		this.camera = new THREE.PerspectiveCamera(
+		70,
 		device.width / device.height,
 		0.1,
 		100,
@@ -25,7 +25,7 @@ export default class Three {
 		this.camera.position.set(0, 0, 2);
 		this.scene.add(this.camera);
 
-		this.renderer = new T.WebGLRenderer({
+		this.renderer = new THREE.WebGLRenderer({
 			canvas: this.canvas,
 			alpha: true,
 			antialias: true,
@@ -36,7 +36,7 @@ export default class Three {
 
 		this.controls = new OrbitControls(this.camera, this.canvas);
 
-		this.clock = new T.Clock();
+		this.clock = new THREE.Clock();
 
 		this.setLights();
 		this.setGeometry();
@@ -45,14 +45,14 @@ export default class Three {
 	}
 
 	setLights() {
-		this.ambientLight = new T.AmbientLight(new T.Color(1, 1, 1, 1));
+		this.ambientLight = new THREE.AmbientLight(new THREE.Color(1, 1, 1, 1));
 		this.scene.add(this.ambientLight);
 	}
 
 	setGeometry() {
-		this.planeGeometry = new T.PlaneGeometry(1, 1, 128, 128);
-		this.planeMaterial = new T.ShaderMaterial({
-			side: T.DoubleSide,
+		this.planeGeometry = new THREE.PlaneGeometry(1, 1, 128, 128);
+		this.planeMaterial = new THREE.ShaderMaterial({
+			side: THREE.DoubleSide,
 			wireframe: true,
 			fragmentShader: fragment,
 			vertexShader: vertex,
@@ -61,7 +61,7 @@ export default class Three {
 			},
 		});
 
-		this.planeMesh = new T.Mesh(this.planeGeometry, this.planeMaterial);
+		this.planeMesh = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
 		this.scene.add(this.planeMesh);
 	}
 
