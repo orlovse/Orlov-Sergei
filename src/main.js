@@ -1,4 +1,4 @@
-import './style.css'
+import './style.css';
 import Three from './js/app.js';
 
 document.addEventListener('DOMContentLoaded', () => {});

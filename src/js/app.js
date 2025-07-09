@@ -7,7 +7,7 @@ import vertex from '../shaders/vertex.glsl';
 const device = {
 	width: window.innerWidth,
 	height: window.innerHeight,
-	pixelRatio: window.devicePixelRatio
+	pixelRatio: window.devicePixelRatio,
 };
 
 export default class Three {
@@ -20,7 +20,7 @@ export default class Three {
 		75,
 		device.width / device.height,
 		0.1,
-		100
+		100,
 		);
 		this.camera.position.set(0, 0, 2);
 		this.scene.add(this.camera);
@@ -29,7 +29,7 @@ export default class Three {
 			canvas: this.canvas,
 			alpha: true,
 			antialias: true,
-			preserveDrawingBuffer: true
+			preserveDrawingBuffer: true,
 		});
 		this.renderer.setSize(device.width, device.height);
 		this.renderer.setPixelRatio(Math.min(device.pixelRatio, 2));
@@ -57,8 +57,8 @@ export default class Three {
 			fragmentShader: fragment,
 			vertexShader: vertex,
 			uniforms: {
-				progress: { type: 'f', value: 0 }
-			}
+				progress: { type: 'f', value: 0 },
+			},
 		});
 
 		this.planeMesh = new T.Mesh(this.planeGeometry, this.planeMaterial);
