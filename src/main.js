@@ -1,4 +1,3 @@
-import './style.css';
 import Sketch from './js/app.js';
 
 window.addEventListener('load', () => {

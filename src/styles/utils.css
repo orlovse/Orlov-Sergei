@@ -1,0 +1,48 @@
+.decorated-text {
+    text-decoration: none;
+    position: relative;
+}
+
+.decorated-text::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-accent);
+    transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.decorated-text:hover::before {
+    left: 0;
+    right: auto;
+    width: 100%;
+}
+
+.highlight-word {
+    position: relative;
+    display: inline-block;
+    color: inherit;
+    transition: ease-in-out 0.5s;
+}
+
+.highlight-word::first-letter {
+    background-color: var(--color-accent-opposite);
+}
+
+.highlight-word::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--color-accent-opposite);
+    transition: width 0.3s ease;
+    z-index: -1;
+}
+
+.highlight-word:hover::before {
+    width: 100%;
+}

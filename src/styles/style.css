@@ -98,57 +98,50 @@ h1 {
   font-weight: 700;
 }
 
-.scroll-spacer {
+.app__scroll-spacer {
   height: 200vh;
 }
 
-.decorated-text {
+.app__social-links {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 1rem;
+  z-index: 20;
+}
+
+.app__link {
+  --g-base: rgba(255, 255, 255, 0.15);
+  --g-shadow-dark: rgba(0, 0, 0, 0.2);
+  --g-shadow-light: rgb(255 255 255 / 10%);
+
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: var(--g-base);
+  box-shadow: 0 0 10px var(--g-shadow-dark), 0 4px 15px rgb(0 0 0 / 10%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
-  position: relative;
+  transition: all 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.decorated-text::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 0;
-  height: 2px;
-  background-color: var(--color-accent);
-  transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+.app__link__icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--color-text);
 }
 
-.decorated-text:hover::before {
-  left: 0;
-  right: auto;
-  width: 100%;
+.app__link:hover {
+  box-shadow: 0 0 0 #4c789b, 0 0 0 rgb(0 0 0 / 22%);
 }
 
-.highlight-word {
-  position: relative;
-  display: inline-block;
-  color: inherit;
-  transition: ease-in-out 0.5s;
-}
-
-.highlight-word::first-letter {
-  background-color: var(--color-accent-opposite);
-}
-
-.highlight-word::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0;
-  background-color: var(--color-accent-opposite);
-  transition: width 0.3s ease;
-  z-index: -1;
-}
-
-.highlight-word:hover::before {
-  width: 100%;
+.app__link:active {
+  box-shadow:
+          inset 6px 6px 10px var(--g-shadow-dark),
+          inset -6px -6px 10px var(--g-shadow-light);
 }
 
 @media (max-width: 700px) {
