@@ -1,15 +1,68 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
   </head>
   <body>
-    <div id="app">
-      <div class="main-content">test</div>
-    </div>
+    <div id="app"></div>
+
+    <main class="scroll-container">
+      <section class="main-section">
+        <div class="hero">
+          <h1>Sergei Orlov</h1>
+          <p class="subtitle">Senior Frontend Developer</p>
+        </div>
+
+        <div class="info">
+          <div class="detail-block">
+            <h3>Skills</h3>
+            <p>
+              JS/TS • React • Redux-Saga • Vue 2/3 • Pinia • Webpack / Vite • Storybook • Python (automation & tooling) • Docker • Design Systems
+            </p>
+          </div>
+
+          <div class="detail-block">
+            <h3>About Me</h3>
+            <p>
+              I’m a Senior Frontend Developer specializing in modern JavaScript frameworks, design systems and performant architectures. I thrive on solving complex UI challenges, integrating cutting-edge AI platforms, and lifting team capabilities through mentorship and technical leadership.
+            </p>
+          </div>
+
+          <div class="detail-block">
+            <h3>Oktopost — Senior Frontend Developer (2022 – Present)</h3>
+            <p>
+              Lead frontend work on a new AI platform.
+              Worked on design-system-based UI library and Storybook.
+              Built new features for our main apps and migrated old code to the new framework.
+              I also conduct technical interviews, participate actively in the company’s frontend guild, and mentor junior developers.
+            </p>
+          </div>
+
+          <div class="detail-block">
+            <h3>Allot — Frontend Engineer (2020 – 2022)</h3>
+            <p>
+              I developed two cybersecurity dashboards on a unified React + React Native codebase, delivering consistent web and mobile experiences while optimizing cross-platform component reuse.
+            </p>
+          </div>
+
+          <div class="detail-block">
+            <h3>Hobbies</h3>
+            <p>
+              Drones • Photography • Sailing • Piano
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="scroll-spacer"></section>
+    </main>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

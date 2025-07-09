@@ -6,16 +6,17 @@ import vertex from '../shaders/vertex.glsl';
 import simFragment from '../shaders/fbo/simFragment.glsl';
 import simVertex from '../shaders/fbo/simVertex.glsl';
 import GUI from 'lil-gui';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+gsap.registerPlugin(ScrollTrigger);
 
 const THEME = {
 	light: {
-		background: new THREE.Color(0xffffff),
-		particles: new THREE.Color(0xFFA500),
+		particles: new THREE.Color('#ffb361'),
 	},
 	dark: {
-		background: new THREE.Color(0x000000),
-		particles: new THREE.Color(0x8A2BE2),
+		particles: new THREE.Color('#517fa4'),
 	},
 };
 
@@ -35,10 +36,10 @@ export default class Sketch {
 		1000,
 		);
 
-		this.renderer = new THREE.WebGLRenderer({ antialias: true });
+		this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 		this.renderer.setSize(this.width, this.height);
-		this.renderer.setClearColor(0x000000, 1);
+		this.renderer.setClearColor(0x000000, 0);
 		this.container.appendChild(this.renderer.domElement);
 
 		this.raycaster = new THREE.Raycaster();
@@ -63,6 +64,7 @@ export default class Sketch {
 		this.resize();
 		// this.setupSettings();
 		this.setupThemeColors();
+		this.setupScrollAnimation();
 	}
 
 	setupEvents() {
@@ -226,6 +228,9 @@ export default class Sketch {
 				uColor: {
 					value: THEME.light.particles,
 				},
+				uScale: {
+					value: 0.3,
+				},
 			},
 		});
 
@@ -260,8 +265,6 @@ export default class Sketch {
 		const applyTheme = (isDark) => {
 			const currentTheme = isDark ? THEME.dark : THEME.light;
 
-			this.renderer.setClearColor(currentTheme.background);
-
 			if (this.material) {
 				this.material.uniforms.uColor.value = currentTheme.particles;
 			}
@@ -272,6 +275,36 @@ export default class Sketch {
 		});
 
 		applyTheme(darkThemeMq.matches);
+	}
+
+	setupScrollAnimation() {
+		const tl = gsap.timeline({
+			scrollTrigger: {
+				trigger: '.scroll-container',
+				start: 'top top',
+				end: '+=200%',
+				scrub: 1.2,
+			},
+		});
+
+		tl.to(this.material.uniforms.uScale, { value: 1.2 }, 0);
+
+		tl.to('.hero', {
+			y: '-35vh',
+			ease: 'power1.inOut',
+		}, 0);
+
+		tl.to('.info', {
+			y: '10vh',
+			ease: 'power1.inOut',
+		}, 0.1);
+
+		tl.to('.detail-block', {
+			opacity: 1,
+			y: 0,
+			stagger: 0.2,
+			ease: 'power2.out',
+		}, 0.3);
 	}
 
 	render() {
