@@ -52,7 +52,7 @@ html, body {
   background-image: var(--background-image);
 }
 
-h1 {
+.app__title {
   font-family: var(--font-title);
   font-size: 3rem;
 }
@@ -154,7 +154,7 @@ h1 {
     top: 3rem;
   }
 
-  h1 {
+  .app__title {
     font-size: 2rem;
   }
 
