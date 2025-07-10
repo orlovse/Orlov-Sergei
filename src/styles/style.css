@@ -124,7 +124,7 @@ html, body {
   height: 2.4rem;
   border-radius: 50%;
   background: var(--g-base);
-  box-shadow: 0 0 10px var(--g-shadow-dark), 0 4px 15px rgb(0 0 0 / 10%);
+  box-shadow: 0 0 0 #4c789b, 0 0 0 rgb(0 0 0 / 22%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -139,7 +139,7 @@ html, body {
 }
 
 .app__link:hover {
-  box-shadow: 0 0 0 #4c789b, 0 0 0 rgb(0 0 0 / 22%);
+  box-shadow: 0 0 10px var(--g-shadow-dark), 0 4px 15px rgb(0 0 0 / 10%);
 }
 
 .app__link:active {
