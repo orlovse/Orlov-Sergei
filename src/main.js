@@ -6,4 +6,8 @@ window.addEventListener('load', () => {
 	if (app) {
 		new Sketch({ parentElement: app });
 	}
+
+	const experience = document.querySelector('.experience');
+
+	experience.innerText = new Date().getFullYear() - 2020;
 });
